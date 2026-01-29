@@ -1,28 +1,29 @@
 # Information Retrieval System
 
-A complete information retrieval pipeline with dense and sparse embeddings support.
+A complete **Information Retrieval and RAG pipeline** supporting both **dense** and  **sparse embeddings** , designed for recipe-based search and question answering.
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 .
-├── config.yaml              # Configuration file
-├── pipeline.py              # Main pipeline script
-├── README.md               # This file
+├── config.yaml              # Central configuration file
+├── pipeline.py              # End-to-end pipeline script
+├── README.md                # Project documentation
 ├── data/
-│   ├── full_dataset.csv    # Full dataset
-│   ├── small.csv           # Small dataset for testing
-│   └── processed/          # Processed chunks
+│   ├── full_dataset.csv     # Complete dataset
+│   ├── small.csv            # Small dataset for testing
+│   └── processed/           # Processed chunks
 ├── src/
-│   ├── utils.py            # Utility functions
-│   ├── chunking.py         # Text chunking functions
-│   ├── embedding.py        # Embedding creation
-│   ├── vector_db.py        # Vector database operations
-│   └── retriever.py        # Retrieval functions
-└── embeddings/             # Saved embeddings and indices
+│   ├── utils.py             # Utility functions
+│   ├── chunking.py          # Text chunking logic
+│   ├── embedding.py         # Embedding generation
+│   ├── vector_db.py         # Vector database operations
+│   └── retriever.py         # Retrieval logic
+└── embeddings/              # Stored embeddings and indices
+
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Streamlit UI (Recommended)
 
@@ -34,6 +35,7 @@ streamlit run streamlit_app.py
 ```
 
 Notes:
+
 - Configure dataset and models via `config.yaml` (e.g., `dataset_path`, `embedding_model`).
 - For RAG answers, set `GOOGLE_API_KEY` in your environment or paste it in the sidebar.
 
@@ -46,29 +48,33 @@ pip install pandas numpy pyyaml scikit-learn sentence-transformers faiss-cpu
 ### 2. Configure Settings
 
 Edit `config.yaml` to customize:
-- Chunk size and overlap
-- Embedding method (dense/sparse)
-- Model names
-- File paths
+
+* Chunk size and overlap
+* Embedding type (dense or sparse)
+* Model names
+* Dataset and output paths
 
 ### 3. Run the Pipeline
 
 **Build and query the system:**
+
 ```bash
 python pipeline.py --mode both --query "chocolate cake recipe"
 ```
 
 **Only build the system:**
+
 ```bash
 python pipeline.py --mode build
 ```
 
 **Only query (after building):**
+
 ```bash
 python pipeline.py --mode query --query "your query here" --top-k 10
 ```
 
-## 📝 Configuration File
+## Configuration File
 
 The `config.yaml` file contains all settings:
 
@@ -97,11 +103,12 @@ output_json_path: data/output.json
 top_k: 10
 ```
 
-## 🔧 Module Usage
+## Module Usage
 
 ### Individual Module Examples
 
-#### 1. Load and Prepare Data
+#### 1. Load Configuration and Dataset
+
 ```python
 from src.utils import load_config, load_dataset, prepare_documents
 
@@ -111,15 +118,21 @@ documents = prepare_documents(df)
 ```
 
 #### 2. Chunk Documents
+
 ```python
 from src.chunking import chunk_documents, save_chunks
 
 chunks = chunk_documents(documents, config)
-chunk_dicts = [{'chunk_id': i, 'text': text} for i, text in enumerate(chunks)]
-save_chunks(chunk_dicts)  # Uses path from config
+chunk_dicts = [
+    {"chunk_id": i, "text": text}
+    for i, text in enumerate(chunks)
+]
+
+save_chunks(chunk_dicts)
 ```
 
 #### 3. Create Embeddings
+
 ```python
 from src.embedding import embed_chunks, save_dense_embeddings
 import pandas as pd
@@ -130,6 +143,7 @@ save_dense_embeddings(embeddings)  # Uses path from config
 ```
 
 #### 4. Build Vector Index
+
 ```python
 from src.vector_db import build_index, save_faiss_index
 
@@ -138,6 +152,7 @@ save_faiss_index(index, "embeddings/storage/faiss_index_index.faiss")
 ```
 
 #### 5. Query the System
+
 ```python
 from src.retriever import retrieve
 from src.vector_db import load_faiss_index
@@ -156,7 +171,7 @@ results = retrieve(
 )
 ```
 
-## 🔄 Pipeline Workflow
+## Pipeline Workflow
 
 The complete pipeline follows these steps:
 
@@ -168,16 +183,16 @@ The complete pipeline follows these steps:
 6. **Save Artifacts** - Save chunks, embeddings, and index
 7. **Query System** - Retrieve relevant chunks for queries
 
-## 📊 Features
+## Features
 
-- ✅ **Flexible Configuration**: All settings in one YAML file
-- ✅ **Multiple Embedding Methods**: Dense (Sentence Transformers) and Sparse (TF-IDF)
-- ✅ **Efficient Vector Search**: FAISS for dense, sklearn for sparse
-- ✅ **Modular Design**: Use individual modules or the complete pipeline
-- ✅ **Easy Querying**: Simple interface for retrieval
-- ✅ **Persistent Storage**: Save and load embeddings/indices
+- **Flexible Configuration**: All settings in one YAML file
+- **Multiple Embedding Methods**: Dense (Sentence Transformers) and Sparse (TF-IDF)
+- **Efficient Vector Search**: FAISS for dense, sklearn for sparse
+- **Modular Design**: Use individual modules or the complete pipeline
+- **Easy Querying**: Simple interface for retrieval
+- **Persistent Storage**: Save and load embeddings/indices
 
-## 🔍 Example Queries
+## Example Queries
 
 ```bash
 # Food-related
@@ -193,27 +208,28 @@ python pipeline.py --mode query --query "baking desserts"
 python pipeline.py --mode query --query "healthy salads" --top-k 10
 ```
 
-## 🛠️ Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
 1. **Config file not found**
+
    - Make sure `config.yaml` exists in the project root
    - Check the path if running from a different directory
-
 2. **Dataset not found**
+
    - Verify the `dataset_path` in `config.yaml`
    - Ensure the CSV file exists at that location
-
 3. **Import errors**
+
    - Make sure all dependencies are installed
    - Run: `pip install -r requirements.txt` (if available)
-
 4. **FAISS installation**
+
    - For CPU: `pip install faiss-cpu`
    - For GPU: `pip install faiss-gpu`
 
-## 📦 Output Files
+## Output Files
 
 After running the pipeline, you'll find:
 
@@ -223,7 +239,7 @@ After running the pipeline, you'll find:
 - `embeddings/storage/faiss_index_vectorizer.pkl` - TF-IDF vectorizer (sparse)
 - `embeddings/storage/faiss_index_matrix.npy` - Sparse matrix (sparse)
 
-## 🎯 Next Steps
+## Next Steps
 
 - Experiment with different embedding models
 - Try both dense and sparse methods
@@ -231,6 +247,6 @@ After running the pipeline, you'll find:
 - Integrate with your own datasets
 - Add hybrid retrieval (combine dense + sparse)
 
-## 📄 License
+## License
 
 This project is for educational purposes.
